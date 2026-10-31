@@ -1,5 +1,5 @@
 import json
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 import strip
 from dotenv import load_dotenv
 import os
@@ -13,7 +13,7 @@ from langchain_ollama import ChatOllama
 class PersonalInfo(BaseModel):
     summary: str = Field(description="Summary of the Personal Info")
     facts: list[str] = Field(description="Facts of the Personal Info")
-
+    age: int = Field(description="Age of the Personal Info")
 
 def main():
     information = """
@@ -53,10 +53,13 @@ Elon Reeve Musk was born on June 28, 1971, in Pretoria, Transvaal Province (Gaut
     summary_prompt_template = PromptTemplate(
         input_variables=["information"], template=summary_template
     )
-    llm = ChatOllama(temperature=0, model="gemma3:4b")
+    llm = ChatOllama(temperature=0, model="llama3.2:3b")
     structured_llm = llm.with_structured_output(PersonalInfo)
     chain = summary_prompt_template | structured_llm
-    response = chain.invoke(input={"information": information})
+    try:
+        response = chain.invoke(input={"information": information})
+    except ValidationError as e:
+        raise ValueError("something went wrong") from e
     print(response.summary)
     print(response.facts)
 

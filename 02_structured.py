@@ -48,7 +48,7 @@ Elon Reeve Musk was born on June 28, 1971, in Pretoria, Transvaal Province (Gaut
     summary_prompt_template = PromptTemplate(
         input_variables=["information"], template=summary_template
     )
-    llm = ChatOllama(temperature=0, model="gemma3:4b")
+    llm = ChatOllama(temperature=0, model="llama3.2:3b")
     chain = summary_prompt_template | llm
     response = chain.invoke(input={"information": information})
     print(repr(response.content))
