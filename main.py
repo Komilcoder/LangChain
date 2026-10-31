@@ -1,11 +1,11 @@
 from dotenv import load_dotenv
 import os
+
+load_dotenv()
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
 from langchain_ollama import ChatOllama
-load_dotenv()
 
-print(load_dotenv(), "==========ddddddddddd======")
 
 def main():
     information= """
@@ -24,7 +24,7 @@ See also: Musk family
 Elon Reeve Musk was born on June 28, 1971, in Pretoria, Transvaal Province (Gauteng Province since 1994) South Africa's administrative capital.[3][4] He is of British and Pennsylvania Dutch ancestry.[5][6] His mother, Maye (née Haldeman), is a model and dietitian born in Saskatchewan, Canada, and raised in South Africa.[7][8][9] Musk therefore holds both South African and Canadian citizenship from birth.[10] His father, Errol Musk, is a South African electromechanical engineer, pilot, sailor, consultant, emerald dealer, and property developer, who partly owned a rental lodge at Timbavati Private Nature Reserve.[11][12][13][14]
     
     """
-    summary_template = f"""
+    summary_template = """
     given the information {information} about a person i want you to create:
     1. A short summary
     2.two interesting facts about them
@@ -33,7 +33,7 @@ Elon Reeve Musk was born on June 28, 1971, in Pretoria, Transvaal Province (Gaut
     summary_prompt_template = PromptTemplate(
         input_variables=["information"],template=summary_template
     )
-    llm = ChatOllama(temperature=0, model="gemma3:270m")
+    llm = ChatOllama(temperature=0, model="gemma3:4b")
     chain = summary_prompt_template | llm
     response = chain.invoke(input={"information": information})
     print(response.content)
