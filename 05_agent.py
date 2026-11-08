@@ -15,21 +15,22 @@ from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage, ToolMessage
 from langchain_core.messages import SystemMessage
 
+RATES = {"USD": 12000, "EUR": 14400}
 
 @tool
 def get_exchange_rate(currency: str)->str:
     """Return the exchange rate of the given currency (e.g. USD, EUR) to UZS."""
-    rates = {"USD": "16000", "EUR": "14400"}
-    return rates[currency.upper()]
+    rates = RATES
+    code = currency.upper()
+    return f"1 {code} = {rates[code]} UZS"
 
 
 @tool
 def convert_amount(amount: float, currency: str)->str:
-    """Convert the given amount to 100*12000=12000000 USD dollarni Uzbek sum please convert"""
-    rates = {"USD": 12000, "EUR": 14400}
+    """convert amount function is convert currency from to another currency is (USD, EUR, UZS) maybe and if we input some currency it should convert to another currency, amount is sum of converting sum"""
+    rates = RATES
     total = amount * rates[currency.upper()]
     return f"{amount} {currency.upper()} = {total} UZS"
-
 
 def main():
     question = input("savol:What is the USD exchange rate?")
@@ -40,7 +41,7 @@ def main():
     SystemMessage("You are an exchange rate assistant.\n"
     "Use the tools to get rates. Never use your own knowledge of rates.\n"
     "After a tool returns a result, reply with that result as a short sentence, "
-    "keeping all numbers exactly as they are."),
+    "keeping all numbers exactly as they are.If there are several tool results, mention every one of them in your reply"),
     HumanMessage(question),
 ]
 
@@ -57,8 +58,11 @@ def main():
             tool = tools[tool_call["name"]]
             try:
                 result = tool.invoke(tool_call['args'])
-            except KeyError as e:
-                result = f""
+            except Exception as e:
+
+                result = f"Error: cannot process {tool_call['args']}. Available currencies: USD, EUR. Details: {e}"
+                if not str(result).strip():
+                    result = "Error: the tool returned no result."
             messages.append(ToolMessage(content=str(result), tool_call_id=tool_call["id"]))
         for m in messages:
             print(type(m).__name__, "->", m.content)
