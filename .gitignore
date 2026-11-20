@@ -186,3 +186,4 @@ workfile.txt
 
 # docker-compose
 statics/
+index.json
